@@ -1,72 +1,20 @@
-import { BASE_URL } from "../config";
+const express = require("express");
+const router = express.Router();
+const userControllers = require("../controllers/userControllers");
+const { check } = require("express-validator");
+const { verifyToken } = require("../middleware/auth");
 
-const signup = async (user) => {
-  try {
-    const res = await fetch(BASE_URL + "api/users/register", {
-      method: "POST",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(user),
-    });
-    return await res.json();
-  } catch (err) {
-    console.log(err);
-  }
-};
+router.post("/register", userControllers.register);
+router.post("/login", userControllers.login);
+router.get("/random", userControllers.getRandomUsers);
 
-const login = async (user) => {
-  try {
-    const res = await fetch(BASE_URL + "api/users/login", {
-      method: "POST",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(user),
-    });
-    return await res.json();
-  } catch (err) {
-    console.log(err);
-  }
-};
+router.get("/:username", userControllers.getUser);
+router.patch("/:id", verifyToken, userControllers.updateUser);
 
-const getUser = async (params) => {
-  try {
-    const res = await fetch(BASE_URL + "api/users/" + params.id);
-    return res.json();
-  } catch (err) {
-    console.log(err);
-  }
-};
+router.post("/follow/:id", verifyToken, userControllers.follow);
+router.delete("/unfollow/:id", verifyToken, userControllers.unfollow);
 
-const getRandomUsers = async (query) => {
-  try {
-    const res = await fetch(
-      BASE_URL + "api/users/random?" + new URLSearchParams(query)
-    );
-    return res.json();
-  } catch (err) {
-    console.log(err);
-  }
-};
+router.get("/followers/:id", userControllers.getFollowers);
+router.get("/following/:id", userControllers.getFollowing);
 
-const updateUser = async (user, data) => {
-  try {
-    const res = await fetch(BASE_URL + "api/users/" + user._id, {
-      method: "PATCH",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-        "x-access-token": user.token,
-      },
-      body: JSON.stringify(data),
-    });
-    return res.json();
-  } catch (err) {
-    console.log(err);
-  }
-};
-
-export { signup, login, getUser, getRandomUsers, updateUser };
+module.exports = router;

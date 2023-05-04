@@ -1,46 +1,10 @@
-import { BASE_URL } from "../config";
+const express = require("express");
+const router = express.Router();
+const messageController = require("../controllers/messageController");
+const { verifyToken } = require("../middleware/auth");
 
-const getConversations = async (user) => {
-  try {
-    const res = await fetch(BASE_URL + "api/messages", {
-      headers: {
-        "x-access-token": user.token,
-      },
-    });
-    return await res.json();
-  } catch (err) {
-    console.log(err);
-  }
-};
+router.get("/", verifyToken, messageController.getConversations);
+router.post("/:id", verifyToken, messageController.sendMessage);
+router.get("/:id", verifyToken, messageController.getMessages);
 
-const getMessages = async (user, conversationId) => {
-  try {
-    const res = await fetch(BASE_URL + "api/messages/" + conversationId, {
-      headers: {
-        "x-access-token": user.token,
-      },
-    });
-    return await res.json();
-  } catch (err) {
-    console.log(err);
-  }
-};
-
-const sendMessage = async (user, message, recipientId) => {
-  try {
-    const res = await fetch(BASE_URL + "api/messages/" + recipientId, {
-      method: "POST",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-        "x-access-token": user.token,
-      },
-      body: JSON.stringify(message),
-    });
-    return await res.json();
-  } catch (err) {
-    console.log(err);
-  }
-};
-
-export { getConversations, getMessages, sendMessage };
+module.exports = router;
